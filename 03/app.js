@@ -28,7 +28,6 @@ let numOfBits = oxyArr.length;
 while (oxyArr.length > 1) {
     // Look at each bit position.
     for (let bitPos = 0; bitPos < oxyArr[0].length - 1; bitPos++) {
-        console.log(oxyArr);
         let leastCommonBit = "";
         // Look at each value in the array.
         let count0 = 0;
@@ -53,16 +52,18 @@ while (oxyArr.length > 1) {
 
         // Keep the most common bit column values.
         for (let i = oxyArr.length - 1; i >= 0; i--) {
+            console.log(`oxyArr: ${oxyArr}`);
             console.log(`i: ${i}`);
+            console.log(`oxyArr[i]: ${oxyArr[i]}`);
             console.log(`oxyArr[i].charAt(bitPos): ${oxyArr[i].charAt(bitPos)}`);
             if (oxyArr[i].charAt(bitPos) == leastCommonBit) {
-                oxyArr = oxyArr.splice(i, 1);
+                oxyArr.splice(i, 1);
             }
         }
     }
 }
 
-console.log(oxyArr);
+//console.log(oxyArr);
 
 // Keep cutting down c02 array until there is only 1 value left
 /*while (c02Arr.length > 1) {
