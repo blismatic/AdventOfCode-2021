@@ -1,6 +1,6 @@
 const { log } = require("console");
 const fs = require("fs");
-let data = fs.readFileSync("./08/test.txt", "utf8");
+let data = fs.readFileSync("./08/input.txt", "utf8");
 data = data
   .split(/\r?\n/)
   .map((row) => row.split(" | ").map((elem) => elem.split(" ")));
@@ -21,14 +21,15 @@ for (let i = 0; i < data.length; i++) {
     }
   }
 }
-console.log(`Part 1: ${count}`);
+console.log(count);
 
 // Part 2
 let sumOfDecodedOutputValues = 0;
 // loop through data, row by row (row # = i)
 for (let i = 0; i < data.length; i++) {
-  log(`Left Side: ${data[i][0]}`);
-  log(`Right Side: ${data[i][1]}`);
+  data[i][0].sort((a, b) => a.length - b.length);
+  //log(`Left Side: ${data[i][0]}`);
+  //log(`Right Side: ${data[i][1]}`);
   let digits = {
     num0: new Set(),
     num1: new Set(),
@@ -89,6 +90,8 @@ for (let i = 0; i < data.length; i++) {
       );
     }
   }
+  //log(`digits`);
+  //log(digits);
 
   // loop through right 4 output values now
   let decodedOutputValue = "";
@@ -119,35 +122,15 @@ for (let i = 0; i < data.length; i++) {
     } else {
       console.error(`how the fuck did i end up here`);
       /*log('elemSet');
-      log(elemSet);
-      log('digits.num0');
-      log(digits.num0);
-      log('digits.num1');
-      log(digits.num1);
-      log('digits.num2');
-      log(digits.num2);
-      log('digits.num3');
-      log(digits.num3);
-      log('digits.num4');
-      log(digits.num4);
-      log('digits.num5');
-      log(digits.num5);
-      log('digits.num6');
-      log(digits.num6);
-      log('digits.num7');
-      log(digits.num7);
-      log('digits.num8');
-      log(digits.num8);
-      log('digits.num9');
-      log(digits.num9);*/
+      */
       // cefbgd => length 6, could be 0, 6, or 9
     }
   }
-  log(`row ${i+1} decodedOutputValue: ${decodedOutputValue}`);
-  log();
+  //log(`row ${i+1} decodedOutputValue: ${decodedOutputValue}`);
+  //log();
   sumOfDecodedOutputValues += parseInt(decodedOutputValue);
 }
-log(`Part 2: ${sumOfDecodedOutputValues}`);
+log(sumOfDecodedOutputValues);
 
 // ***************************************
 // * Implementing common set operations. *
