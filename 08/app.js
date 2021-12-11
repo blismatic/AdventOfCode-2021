@@ -1,7 +1,9 @@
 const { log } = require("console");
 const fs = require("fs");
 let data = fs.readFileSync("./08/test.txt", "utf8");
-data = data.split(/\r?\n/).map((row) => row.split(" | ").map((elem) => elem.split(" ")));
+data = data
+  .split(/\r?\n/)
+  .map((row) => row.split(" | ").map((elem) => elem.split(" ")));
 //console.log(data);
 
 // Part 1
@@ -9,74 +11,156 @@ let count = 0;
 for (let i = 0; i < data.length; i++) {
   for (let j = 0; j < data[i][1].length; j++) {
     let elem = data[i][1][j];
-    if (elem.length == 2 || elem.length == 3 || elem.length == 4 || elem.length == 7) {
+    if (
+      elem.length == 2 ||
+      elem.length == 3 ||
+      elem.length == 4 ||
+      elem.length == 7
+    ) {
       count++;
     }
   }
 }
-console.log(count);
+console.log(`Part 1: ${count}`);
 
 // Part 2
+let sumOfDecodedOutputValues = 0;
+// loop through data, row by row (row # = i)
 for (let i = 0; i < data.length; i++) {
-  log(`row: ${data[i][0]}`);
+  log(`Left Side: ${data[i][0]}`);
+  log(`Right Side: ${data[i][1]}`);
+  let digits = {
+    num0: new Set(),
+    num1: new Set(),
+    num2: new Set(),
+    num3: new Set(),
+    num4: new Set(),
+    num5: new Set(),
+    num6: new Set(),
+    num7: new Set(),
+    num8: new Set(),
+    num9: new Set()
+  };
 
-  for (let j = 0; j < data[i].length; j++) {
+  // loop through left 10 values first
+  for (let j = 0; j < data[i][0].length; j++) {
     let elem = data[i][0][j];
-    for (let k = 0; k < elem.length; k++) {
-      if (elem.length == 2) {
-        // do something
+    let elemSet = new Set(elem);
+
+    if (elem.length == 2) {
+      // must correspond to digit 1
+      digits.num1 = elemSet;
+    } else if (elem.length == 4) {
+      // must correspond to digit 4
+      digits.num4 = elemSet;
+    } else if (elem.length == 3) {
+      // must correspond to digit 7
+      digits.num7 = elemSet;
+    } else if (elem.length == 7) {
+      // must correspond to digit 8
+      digits.num8 = elemSet;
+    } else if (elem.length == 5) {
+      // corresponds to digits 2, 3, and 5
+      if (isSuperset(elemSet, digits.num1)) {
+        // must correspond to 3, since digit 3 contains both segments of digit 1
+        digits.num3 = elemSet;
+      } else if (isSuperset(elemSet, difference(digits.num4, digits.num1))) {
+        // must correspond to 5, since digit 5 contains the L shape made from the difference of 4 and 1
+        digits.num5 = elemSet;
       } else {
-        console.error(`Something went wrong trying to initialize values into sets.\nelem: ${elem}\nelem.length: ${elem.length}`);
+        // must correspond to 2, beause it is the only remaining 5 long element
+        digits.num2 = elemSet;
       }
+    } else if (elem.length == 6) {
+      // corresponds to digits 0, 6, and 9
+      if (isSuperset(elemSet, digits.num4)) {
+        // must correspond to 9, since digit 9 contains all segments of digit 4
+        digits.num9 = elemSet;
+      } else if (isSuperset(elemSet, difference(digits.num4, digits.num1))) {
+        // must correspond to digit 6, since digit 6 contains the L shape but also isn't digit 9
+        digits.num6 = elemSet;
+      } else {
+        // must correspond to 0, because it is the only remaining 6 long element
+        digits.num0 = elemSet;
+      }
+    } else {
+      console.error(
+        `Something went wrong trying to initialize values into sets.\nelem: ${elem}\nelem.length: ${elem.length}`
+      );
     }
   }
+
+  // loop through right 4 output values now
+  let decodedOutputValue = "";
+  for (let k = 0; k < data[i][1].length; k++) {
+    let elem = data[i][1][k];
+    let elemSet = new Set(elem);
+
+    if (areSetsEqual(elemSet, digits.num0)) {
+      decodedOutputValue += 0;
+    } else if (areSetsEqual(elemSet, digits.num1)) {
+      decodedOutputValue += 1;
+    } else if (areSetsEqual(elemSet, digits.num2)) {
+      decodedOutputValue += 2;
+    } else if (areSetsEqual(elemSet, digits.num3)) {
+      decodedOutputValue += 3;
+    } else if (areSetsEqual(elemSet, digits.num4)) {
+      decodedOutputValue += 4;
+    } else if (areSetsEqual(elemSet, digits.num5)) {
+      decodedOutputValue += 5;
+    } else if (areSetsEqual(elemSet, digits.num6)) {
+      decodedOutputValue += 6;
+    } else if (areSetsEqual(elemSet, digits.num7)) {
+      decodedOutputValue += 7;
+    } else if (areSetsEqual(elemSet, digits.num8)) {
+      decodedOutputValue += 8;
+    } else if (areSetsEqual(elemSet, digits.num9)) {
+      decodedOutputValue += 9;
+    } else {
+      console.error(`how the fuck did i end up here`);
+      /*log('elemSet');
+      log(elemSet);
+      log('digits.num0');
+      log(digits.num0);
+      log('digits.num1');
+      log(digits.num1);
+      log('digits.num2');
+      log(digits.num2);
+      log('digits.num3');
+      log(digits.num3);
+      log('digits.num4');
+      log(digits.num4);
+      log('digits.num5');
+      log(digits.num5);
+      log('digits.num6');
+      log(digits.num6);
+      log('digits.num7');
+      log(digits.num7);
+      log('digits.num8');
+      log(digits.num8);
+      log('digits.num9');
+      log(digits.num9);*/
+      // cefbgd => length 6, could be 0, 6, or 9
+    }
+  }
+  log(`row ${i+1} decodedOutputValue: ${decodedOutputValue}`);
+  log();
+  sumOfDecodedOutputValues += parseInt(decodedOutputValue);
+}
+log(`Part 2: ${sumOfDecodedOutputValues}`);
+
+// ***************************************
+// * Implementing common set operations. *
+// ***************************************
+function isSuperset(set, subset) {
+  for (let elem of subset) {
+    if (!set.has(elem)) {
+      return false;
+    }
+  }
+  return true;
 }
 
-/*
-https://2ality.com/2015/01/es6-set-operations.html
-UNKNOWN segments: _, _, _, _, _, _, _
-KNOWN segments:   a, _, _, _, _, _, _
-                  a, _, _, d, _, _, _
-                  a, b, _, d, _, _, _
-                  a, b, _, d, _, _, g
-                  a, b, _, d, e, _, g
-                  a, b, _, d, e, f, g
-                  a, b, c, d, e, f, g
-
-if length of element is 2 (has to map to 1)
-  set 1 = contents of element
-    segment "c" = element[0] and segment "f" = element[1]
-      or
-    segment "f" = element[0] and segment "c" = element[1]
-else if length of element is 3 (has to map to 7)
-  set 7 = set 1 + leftover element
-    segment "a" = difference (set1, set7)
-else if length of element is 4 (has to map to 4)
-  set  4 = set 1 + leftover elements
-  segment "d" = difference( intersect(set3, set4), set1)
-  segment "b" = difference(set4, (set1 + segment d)
-
-else if length of element is 5
-  could be set 2, set 3, or set 5
-    set 3 = set 1 + leftover elements
-
-    find the three letters that they all share
-      find which of those 3 letters is shared with set 4
-        that letter equals segment "d"
-
-else if length of element is 6
-  could be set 0, set 6, or set 9
-    segment "g" = elementsLength6 - set7 - b - d
-
-else if length of element is 7 (has to map to 8)
-  set8 = contents of element
-  segment "e" = difference (set8 - set9)
-
-segment "f" = intersection(set5, set1)
-segment "c" = difference(set1, f)
-*/
-
-// Implementing common set operations.
 function union(setA, setB) {
   let _union = new Set(setA);
   for (let elem of setB) {
@@ -96,10 +180,21 @@ function intersection(setA, setB) {
 }
 
 function difference(setA, setB) {
-  //log(`setA.length: ${setA.length}, setB.length: ${setB.length}`);
   let _difference = new Set(setA);
   for (let elem of setB) {
     _difference.delete(elem);
   }
   return _difference;
+}
+
+function areSetsEqual(setA, setB) {
+  if (setA.size !== setB.size) {
+    return false;
+  }
+  for (let elem of setA) {
+    if (!setB.has(elem)) {
+      return false;
+    }
+  }
+  return true;
 }
